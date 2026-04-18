@@ -6,9 +6,11 @@ An intelligent, dual-axis solar tracking system designed to maximize energy effi
 
 ## 📺 Demo Video
 
-Check out the system in action! The video demonstrates both the automatic tracking capability and the manual remote control via the smartphone interface.
+Check out the system in action! The preview below shows the automatic tracking capability. Click the link below the preview to watch the full high-resolution video.
 
-https://github.com/Asoomkamel/dual-axis-solar-tracker-arduino-esp8266/raw/main/demo_video.mp4
+![System Demo Preview](demo_preview.gif)
+
+🔗 **[Watch Full Demo Video](https://github.com/Asoomkamel/dual-axis-solar-tracker-arduino-esp8266/blob/main/demo_video.mp4)**
 
 ---
 
@@ -72,7 +74,8 @@ The project includes two primary code segments:
 
 ## 📂 Repository Structure
 
-*   `demo_video.mp4`: Full demonstration of the system's functionality.
+*   `demo_video.mp4`: Full high-resolution demonstration of the system's functionality.
+*   `demo_preview.gif`: Animated preview for the README.
 *   `Automatic & Manual Solar-1.pdf`: Comprehensive project report with methodology and results.
 *   `Solar Tracking Code.txt`: Source code for both Automatic and Manual modes.
 *   `*.png`: High-resolution simulation and system images.
