@@ -1,0 +1,230 @@
+•	Manual Code:
+
+/*
+   This source code of graphical user interface 
+   has been generated automatically by RemoteXY editor.
+   To compile this code using RemoteXY library 3.1.11 or later version 
+   download by link http://remotexy.com/en/library/
+   To connect using RemoteXY mobile app by link http://remotexy.com/en/download/                   
+     - for ANDROID 4.11.4 or later version;
+     - for iOS 1.9.1 or later version;
+    
+   This source code is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.    
+*/
+
+//////////////////////////////////////////////
+//        RemoteXY include library          //
+//////////////////////////////////////////////
+
+// RemoteXY select connection mode and include library 
+#define REMOTEXY_MODE__ESP8266_HARDSERIAL_POINT
+
+#include <RemoteXY.h>
+
+// RemoteXY connection settings 
+#define REMOTEXY_SERIAL Serial
+#define REMOTEXY_SERIAL_SPEED 115200
+#define REMOTEXY_WIFI_SSID "RemoteXY"
+#define REMOTEXY_WIFI_PASSWORD "12345678"
+#define REMOTEXY_SERVER_PORT 6377
+#define REMOTEXY_ACCESS_PASSWORD "1234"
+
+// RemoteXY configurate  
+#pragma pack(push, 1)
+uint8_t RemoteXY_CONF[] =   // 66 bytes
+  { 255,3,0,0,0,59,0,16,163,2,4,0,79,28,5,21,53,20,7,18,
+  2,26,4,0,13,26,5,21,15,22,7,18,2,26,2,0,32,25,32,15,
+  40,41,22,11,2,26,31,31,77,97,110,117,97,108,0,65,117,116,111,109,
+  97,116,105,99,32,0 };
+    
+// this structure defines all the variables and events of your control interface 
+struct { 
+
+    /* input variable */
+  unsigned char slider_left; /* =0..100 slider position */
+  unsigned char slider_right; /* =0..100 slider position */
+  
+ 
+  unsigned char switch_1; /* =1 if switch ON and =0 if OFF */
+
+    /* other variable */
+  unsigned char connect_flag;  /* =1 if wire connected, else =0 */
+
+} RemoteXY; 
+
+///////////////////////////////////////////// 
+//           END RemoteXY include          // 
+///////////////////////////////////////////// 
+
+#include <Servo.h> 
+
+const int LDR_LT = 0; // LDR top left (bottom left on the physical device)
+const int LDR_RT = 1; // LDR top right (bottom right on the physical device)
+const int LDR_LD = 2; // LDR bottom left (top left on the physical device)
+const int LDR_RD = 3;
+
+const int tolerance = 50;
+const int dtime = 10;
+#define PIN_LEFT_SERVO 10
+#define PIN_RIGHT_SERVO 8
+
+Servo left_servo;
+Servo right_servo;
+
+
+unsigned long prev_time=0;
+
+void setup()  
+{ 
+  RemoteXY_Init ();  
+   
+  // TODO you setup code 
+  
+  
+  
+  left_servo.attach(PIN_LEFT_SERVO);
+  right_servo.attach(PIN_RIGHT_SERVO);
+ 
+
+  RemoteXY.slider_left=50;
+  RemoteXY.slider_right=50;
+
+   
+} 
+
+void loop()  
+{  
+  RemoteXY_Handler (); // must be called as often as possible
+   
+  // Execute code based on the state of the switch
+  if (RemoteXY.switch_1 == 1) {
+    // If the switch is ON, execute this code
+    left_servo.writeMicroseconds(RemoteXY.slider_left*18+500); 
+    right_servo.writeMicroseconds(2500-RemoteXY.slider_right*10); 
+  } else {
+    
+    
+  }
+  
+  // Rest of your loop code...
+  // Note: Be cautious about using delay() or long-running loops in here,
+  // as it can affect the responsiveness of the RemoteXY interface
+}
+
+
+
+
+
+•	Automatic Code:
+
+#include <Servo.h> // Corrected include statement for the Servo library
+
+// Constants for servo limits
+const int SERVOH_MAX = 180;
+const int SERVOH_MIN = 65;
+const int SERVOV_MAX = 80;
+const int SERVOV_MIN = 15;
+
+// Servo objects
+Servo horizontal; // Horizontal servo
+Servo vertical;   // Vertical servo
+
+// Initial servo positions
+int servohPos = 180;
+int servovPos = 45;
+
+// LDR pin assignments
+const int LDR_LT = 0; // LDR top left (bottom left on the physical device)
+const int LDR_RT = 1; // LDR top right (bottom right on the physical device)
+const int LDR_LD = 2; // LDR bottom left (top left on the physical device)
+const int LDR_RD = 3; // LDR bottom right (top right on the physical device)
+
+// Tolerance and delay time
+const int tolerance = 50;
+const int dtime = 10;
+
+void setup() {
+  Serial.begin(9600);
+  
+  // Attach servos to pins
+  horizontal.attach(10);
+  vertical.attach(8);
+  
+  // Move to initial positions
+  horizontal.write(servohPos);
+  vertical.write(servovPos);
+  
+  // Allow servos to reach the position
+  delay(3000);
+}
+
+void loop() {
+  // Read LDR values
+  int lt = analogRead(LDR_LT);
+  int rt = analogRead(LDR_RT);
+  int ld = analogRead(LDR_LD);
+  int rd = analogRead(LDR_RD);
+
+  // Calculate averages
+  int avgTop = (lt + rt) / 2;
+  int avgBottom = (ld + rd) / 2;
+  int avgLeft = (lt + ld) / 2;
+  int avgRight = (rt + rd) / 2;
+
+  // Calculate differences
+  int diffVert = avgTop - avgBottom;
+  int diffHoriz = avgLeft - avgRight;
+
+  // Adjust vertical servo position
+  if (abs(diffVert) > tolerance) {
+    adjustVertical(diffVert);
+  }
+
+  // Adjust horizontal servo position
+  if (abs(diffHoriz) > tolerance) {
+    adjustHorizontal(diffHoriz);
+  }
+
+  // Print values for debugging
+  printValues(avgTop, avgBottom, avgLeft, avgRight);
+
+  // Wait before next reading
+  delay(dtime);
+}
+
+void adjustVertical(int diff) {
+  if (diff > 0) {
+    servovPos++;
+  } else {
+    servovPos--;
+  }
+  servovPos = constrain(servovPos, SERVOV_MIN, SERVOV_MAX);
+  vertical.write(servovPos);
+}
+
+void adjustHorizontal(int diff) {
+  if (diff > 0) {
+    servohPos--;
+  } else {
+    servohPos++;
+  }
+  servohPos = constrain(servohPos, SERVOH_MIN, SERVOH_MAX);
+  horizontal.write(servohPos);
+}
+
+void printValues(int top, int bottom, int left, int right) {
+  Serial.print(top);
+  Serial.print(" ");
+  Serial.print(bottom);
+  Serial.print(" ");
+  Serial.print(left);
+  Serial.print(" ");
+  Serial.print(right);
+  Serial.print(" ");
+  Serial.print(dtime);
+  Serial.print(" ");
+  Serial.println(tolerance);
+}
